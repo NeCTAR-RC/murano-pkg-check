@@ -35,7 +35,11 @@ class FileWrapper(object):
     def __init__(self, pkg, path):
         self._path = path
         with pkg.open_file(path) as file_:
-            self._raw = file_.read()
+            content = file_.read()
+            if isinstance(content, str):
+                self._raw = content.encode('utf-8')
+            else:
+                self._raw = content
             self._name = file_.name
         self._yaml = None
         self._pkg = pkg
@@ -48,7 +52,7 @@ class FileWrapper(object):
             sio = BytesIO(self.raw())
             setattr(sio, 'name', self._name)
             self._yaml = list(yaml.load_all(sio,
-                                            yaml_loader.YamlLoader))
+                                            Loader=yaml.SafeLoader))
         return self._yaml
 
 
